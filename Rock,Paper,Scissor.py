@@ -1,37 +1,40 @@
-# import the opencv library
 import cv2
-from cv2 import normalize
-from matplotlib import test
 import numpy as np
 import tensorflow as tf
 
-model = tf.keras.models.load_model('C:/Users/sapsl/Downloads/Whitehat jr Python/C110/Project/keras_model.h5')
+camera = cv2.VideoCapture(0)
 
-# define a video capture object
-vid = cv2.VideoCapture(0)
-  
-while(True):
-      
-    # Capture the video frame by frame
-    ret, frame = vid.read()
-    img = cv2.resize(frame,(224,224))
-    test_img = np.array(img,dtype = np.float32)
-    test_img = np.expand_dims(test_img,axis = 0)
-    normalize_img = test_img/255.0
-    prediction = model.predict(normalize_img)
-    print(prediction)
-  
-    # Display the resulting frame
-    cv2.imshow('frame', frame)
-      
-    # Quit window with spacebar
-    key = cv2.waitKey(1)
-    
-    if key == 32:
-        break
-  
-# After the loop release the cap object
-vid.release()
+mymodel = tf.keras.models.load_model("C:/Users/sapsl/Downloads/Whitehat jr Python/C110/Project/keras_model.h5")
 
-# Destroy all the windows
+while True:
+
+	status , frame = camera.read()
+
+	if status:
+
+		frame = cv2.flip(frame , 1)
+
+		resized_frame = cv2.resize(frame , (224,224))
+
+		resized_frame = np.expand_dims(resized_frame , axis = 0)
+
+		resized_frame = resized_frame / 255
+
+		predictions = mymodel.predict(resized_frame)
+
+		rock = int(predictions[0][0]*100)
+		paper = int(predictions[0][1]*100)
+		scissor = int(predictions[0][2]*100)
+
+		print(f"Rock: {rock} %, Paper: {paper} %, Scissor: {scissor} %")
+
+		cv2.imshow('feed' , frame)
+
+		code = cv2.waitKey(999)
+		
+		if code == 32:
+			break
+
+camera.release()
+
 cv2.destroyAllWindows()
